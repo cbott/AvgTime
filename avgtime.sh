@@ -23,7 +23,7 @@ show_help () {
 
 while true; do
   case "$1" in
-    -h | --help ) show_help; shift; shift ;;
+    -h | --help ) show_help;;
     -i | --in ) infile="$2"; shift; shift ;;
     -o | --out ) outfile="$2"; shift; shift ;;
     -n | --number ) number=$2; shift; shift ;;
@@ -43,7 +43,7 @@ fi
 tempf=$(mktemp "${TMPDIR:-/tmp/}$(basename $0).XXXXXXXXXXXX")
 for x in $(seq 1 $number)
 do
-    /usr/bin/time -f "%U" -a -o $tempf $@ < $infile > $outfile
+    /usr/bin/time -f "%U %M" -a -o $tempf $@ < $infile > $outfile
 done
-awk '{ usertime += $1; count++ } END {  printf("Average User Time: %.3f seconds\n", usertime/count) }' $tempf >&2
+awk '{ usertime += $1; mem += $2; count++ } END { printf("Average User Time: %.3f seconds\nAverage Maximum Memory Usage: %i k\n", usertime/count, mem/count) }' $tempf >&2
 rm -f $tempf
